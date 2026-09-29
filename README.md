@@ -1,6 +1,6 @@
 # 👻 GhostStudy
 
-**Live demo → [aritra-20.github.io/ghoststudy](https://aritra-20.github.io/ghoststudy/)**
+**Live demo → [ghoststudy-aritrapal.vercel.app](https://ghoststudy-aritrapal.vercel.app/)**
 
 A concept prototype from my Design Thinking course at Great Lakes Institute of Management.
 
