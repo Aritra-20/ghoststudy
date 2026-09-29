@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GhostStudy — Concept Prototype</title>
+<style>
+:root{--bg:#f6f5fb;--card:#fff;--ink:#1d1b2e;--mute:#6b6880;--line:#e4e2ee;--class:#dcd8f5;--classInk:#3b2f8f;--ghost:#e6f6ea;--ghostInk:#1f6b35;--ghostLine:#5cb870;--accent:#5b4bd6;--busy:#fde7d9;--busyInk:#8a4515}
+@media (prefers-color-scheme:dark){:root{--bg:#14131c;--card:#1d1c28;--ink:#eceaf6;--mute:#9d9ab3;--line:#2e2c3d;--class:#2e2966;--classInk:#cfc8ff;--ghost:#173524;--ghostInk:#9be3ae;--ghostLine:#4ea865;--accent:#8b7df0;--busy:#3d2718;--busyInk:#f3c29e}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:1100px;margin:0 auto;padding:24px 16px 48px}
+header h1{margin:0;font-size:28px;letter-spacing:-.02em}
+header p{margin:4px 0 0;color:var(--mute)}
+.tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:99px;background:var(--class);color:var(--classInk);margin-bottom:8px;font-weight:600}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:16px}
+.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:end}
+label{font-size:12px;color:var(--mute);display:block;margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+select,input{font:inherit;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+button{font:inherit;font-weight:600;padding:9px 16px;border-radius:8px;border:0;background:var(--accent);color:#fff;cursor:pointer}
+button.ghostbtn{background:transparent;color:var(--accent);border:1px solid var(--accent)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:16px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.stat b{display:block;font-size:24px}
+.stat span{color:var(--mute);font-size:13px}
+.cal{display:grid;grid-template-columns:48px repeat(5,minmax(120px,1fr));overflow-x:auto;margin-top:16px;background:var(--card);border:1px solid var(--line);border-radius:14px}
+.calscroll{overflow-x:auto}
+.dayhead{padding:8px;text-align:center;font-weight:700;border-bottom:1px solid var(--line);font-size:13px}
+.col{position:relative;border-left:1px solid var(--line);height:calc(var(--hours)*48px)}
+.hours{position:relative;height:calc(var(--hours)*48px)}
+.hours div{position:absolute;right:6px;font-size:11px;color:var(--mute);transform:translateY(-6px)}
+.hl{position:absolute;left:0;right:0;border-top:1px dashed var(--line)}
+.ev{position:absolute;left:4px;right:4px;border-radius:8px;padding:4px 6px;font-size:12px;line-height:1.3;overflow:hidden}
+.ev.class{background:var(--class);color:var(--classInk)}
+.ev.busy{background:var(--busy);color:var(--busyInk)}
+.ev.ghost{background:var(--ghost);color:var(--ghostInk);border:1.5px dashed var(--ghostLine);cursor:pointer}
+.ev.ghost.done{border-style:solid;opacity:.75}
+.ev.ghost.done::after{content:" ✓"}
+.ev small{display:block;opacity:.8}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:13px;color:var(--mute)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:6px}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(120%);background:var(--ink);color:var(--bg);padding:12px 16px;border-radius:12px;max-width:min(92vw,460px);box-shadow:0 8px 30px rgba(0,0,0,.25);transition:transform .3s;font-size:14px}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.note{font-size:13px;color:var(--mute);margin-top:16px}
+h2{font-size:17px;margin:0 0 8px}
+ol{margin:0;padding-left:20px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <span class="tag">Concept prototype · Design Thinking, GLIM</span>
+  <h1>👻 GhostStudy</h1>
+  <p>Finds the dead time between MBA classes and quietly books it for the certification you keep postponing.</p>
+</header>
+
+<div class="panel">
+  <div class="controls">
+    <div><label for="cert">Certification goal</label>
+      <select id="cert">
+        <option value="pl300">Microsoft PL-300 (Power BI)</option>
+        <option value="gada">Google Advanced Data Analytics</option>
+        <option value="tableau">Tableau Desktop Specialist</option>
+      </select></div>
+    <div><label for="minGap">Shortest usable gap</label>
+      <select id="minGap"><option value="30">30 min</option><option value="45" selected>45 min</option><option value="60">60 min</option></select></div>
+    <div><label for="cap">Max ghost blocks / day</label>
+      <select id="cap"><option>1</option><option selected>2</option><option>3</option></select></div>
+    <button id="run">Shield my week</button>
+    <button id="reset" class="ghostbtn">Reset</button>
+  </div>
+</div>
+
+<div class="stats" id="stats"></div>
+<div class="calscroll"><div class="cal" id="cal"></div></div>
+<div class="legend">
+  <span><i style="background:var(--class)"></i>Class</span>
+  <span><i style="background:var(--busy)"></i>Club / meeting</span>
+  <span><i style="background:var(--ghost);border:1.5px dashed var(--ghostLine)"></i>Ghost block (tap to mark done)</span>
+</div>
+
+<div class="panel">
+  <h2>How it works</h2>
+  <ol>
+    <li><b>Read the calendar.</b> It pulls the class timetable and club commitments (sample week here).</li>
+    <li><b>Find usable gaps.</b> It skips anything shorter than your threshold and keeps 10 minutes of buffer after each class so you can walk out and breathe.</li>
+    <li><b>Ghost-block them.</b> It books the best gaps with the next module that fits, capped per day so the plan doesn't turn into a second timetable.</li>
+    <li><b>Nudge, don't nag.</b> One reminder right before a block, with the exact module to open.</li>
+  </ol>
+  <p class="note">This is a clickable concept prototype with a sample schedule and rule-based scheduling. It doesn't connect to a real calendar, and the module lists are illustrative.</p>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const START=8, END=20, HOURS=END-START;
+const DAYS=["Mon","Tue","Wed","Thu","Fri"];
+// Sample PGPM week: [day, start, end, title, type]
+const EVENTS=[
+ [0,9,10.5,"Marketing Mgmt","class"],[0,11,12.5,"Corporate Finance","class"],[0,15,16.5,"Business Analytics","class"],[0,18,19,"Analytics Club","busy"],
+ [1,9,10.5,"Operations","class"],[1,13.5,15,"Econ for Managers","class"],[1,17,18,"Case prep","busy"],
+ [2,9,10.5,"Marketing Mgmt","class"],[2,11,12.5,"Corporate Finance","class"],[2,14,15.5,"Product Mgmt","class"],
+ [3,10,11.5,"Business Analytics","class"],[3,12,13.5,"Operations","class"],[3,16,17.5,"Guest lecture","busy"],
+ [4,9,10.5,"Product Mgmt","class"],[4,11,12.5,"Econ for Managers","class"],[4,15.5,17,"Team project","busy"]
+];
+const MODULES={
+ pl300:["Get data from sources","Clean data in Power Query","Model data: relationships","DAX basics","DAX time intelligence","Build report visuals","Row-level security","Publish & share in Service","Practice exam set A","Practice exam set B"],
+ gada:["Stats refresher","Python for EDA","Hypothesis testing","Linear regression","Logistic regression","Tree-based models","Model evaluation","Portfolio case study","Practice quiz A","Practice quiz B"],
+ tableau:["Connect & prep data","Dimensions vs measures","Calculated fields","LOD expressions","Maps & dual axis","Dashboards & actions","Formatting best practice","Practice exam set A"]
+};
+const BUFFER=10/60, LUNCH=[12.75,13.25];
+let ghosts=[], done=new Set();
+
+const $=id=>document.getElementById(id);
+const fmt=h=>{const H=Math.floor(h),M=Math.round((h-H)*60);const ap=H>=12?"pm":"am";return ((H+11)%12+1)+(M?":"+String(M).padStart(2,"0"):"")+ap};
+const yPos=h=>((h-START)*48)+"px";
+
+function findGaps(day,minGap){
+  const busy=EVENTS.filter(e=>e[0]===day).map(e=>[e[1],e[2]+BUFFER]).concat([LUNCH]).sort((a,b)=>a[0]-b[0]);
+  const gaps=[];let cur=START+1; // nobody studies at 8am
+  for(const [s,e] of busy){ if(s-cur>=minGap/60) gaps.push([cur,s]); cur=Math.max(cur,e); }
+  if(END-1-cur>=minGap/60) gaps.push([cur,END-1]); // stop at 7pm
+  return gaps;
+}
+function shield(){
+  const minGap=+$("minGap").value, cap=+$("cap").value, mods=MODULES[$("cert").value];
+  ghosts=[];done=new Set();let m=0;
+  DAYS.forEach((_,d)=>{
+    // prefer the longest gaps, then place blocks in time order
+    const picks=findGaps(d,minGap).sort((a,b)=>(b[1]-b[0])-(a[1]-a[0])).slice(0,cap).sort((a,b)=>a[0]-b[0]);
+    picks.forEach(([s,e])=>{const len=Math.min(e-s,1.5);ghosts.push({d,s,e:s+len,mod:mods[m%mods.length]});m++;});
+  });
+  render();
+  if(ghosts.length){const g=ghosts[0];toast(`👻 ${DAYS[g.d]} ${fmt(g.s)}: ${Math.round((g.e-g.s)*60)} free minutes. Open "${g.mod}" and you're one module closer.`);}
+}
+function render(){
+  const cal=$("cal");cal.style.setProperty("--hours",HOURS);cal.innerHTML="";
+  cal.appendChild(Object.assign(document.createElement("div"),{className:"dayhead"}));
+  DAYS.forEach(d=>cal.appendChild(Object.assign(document.createElement("div"),{className:"dayhead",textContent:d})));
+  const hrs=document.createElement("div");hrs.className="hours";
+  for(let h=START;h<END;h++){const t=document.createElement("div");t.style.top=yPos(h);t.textContent=fmt(h);hrs.appendChild(t);}
+  cal.appendChild(hrs);
+  DAYS.forEach((_,d)=>{
+    const col=document.createElement("div");col.className="col";
+    for(let h=START;h<END;h++){const l=document.createElement("div");l.className="hl";l.style.top=yPos(h);col.appendChild(l);}
+    EVENTS.filter(e=>e[0]===d).forEach(e=>col.appendChild(block(e[1],e[2],e[3],e[4],fmt(e[1])+" – "+fmt(e[2]))));
+    ghosts.forEach((g,i)=>{if(g.d!==d)return;const b=block(g.s,g.e,g.mod,"ghost"+(done.has(i)?" done":""),"Study · "+Math.round((g.e-g.s)*60)+" min");
+      b.onclick=()=>{done.has(i)?done.delete(i):done.add(i);render();if(done.has(i))toast(`Nice. "${g.mod}" done. ${ghosts.length-done.size} blocks left this week.`);};col.appendChild(b);});
+    cal.appendChild(col);
+  });
+  const mins=ghosts.reduce((a,g)=>a+(g.e-g.s)*60,0), doneMins=[...done].reduce((a,i)=>a+(ghosts[i].e-ghosts[i].s)*60,0);
+  const free=DAYS.reduce((a,_,d)=>a+findGaps(d,+$("minGap").value).reduce((x,[s,e])=>x+(e-s)*60,0),0);
+  $("stats").innerHTML=[["Usable free time found",Math.round(free)+" min"],["Shielded for study",Math.round(mins)+" min"],["Ghost blocks booked",ghosts.length],["Completed",Math.round(doneMins)+" min"]]
+    .map(([k,v])=>`<div class="stat"><b>${v}</b><span>${k}</span></div>`).join("");
+}
+function block(s,e,title,type,sub){const b=document.createElement("div");b.className="ev "+type;b.style.top=yPos(s);b.style.height=`calc(${(e-s)*48}px - 3px)`;b.innerHTML=`${title}<small>${sub}</small>`;return b;}
+let tt;function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(tt);tt=setTimeout(()=>t.classList.remove("show"),4200);}
+$("run").onclick=shield;$("reset").onclick=()=>{ghosts=[];done=new Set();render();};
+["cert","minGap","cap"].forEach(id=>$(id).onchange=()=>{if(ghosts.length)shield();});
+render();
+</script>
+</body>
+</html>
